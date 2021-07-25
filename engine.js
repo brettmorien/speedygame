@@ -9,6 +9,7 @@ function startGame() {
 
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('game')
+  game.horizon = canvas.height * 0.4
 })
 
 var previousTime = 1
@@ -16,6 +17,10 @@ var game
 
 class Game {
   distance = 0
+  horizon = 0
+
+  ddz = 4
+
   player = new Player()
 }
 
@@ -31,16 +36,21 @@ function drawScene(time) {
   previousTime = time
   debug(`${hz} fps`)
 
-  horizon = 80
-  stripeLength = 20
   game.distance = (canvas.height + (time / 1000) * game.player.speed).toFixed(2)
 
   debug(`${(time / 1000).toFixed(2)}s`)
   debug(`d: ${game.distance}`)
   center = canvas.width / 2
 
-  for (let i = canvas.height; i >= horizon; i--) {
-    let odd = (game.distance - i) % stripeLength >= stripeLength / 2
+  var odd = false
+  var dz = 0
+  var z = game.horizon
+  for (let i = game.horizon; i < canvas.height; i++) {
+    if (i > z) {
+      odd = !odd
+      dz += game.ddz
+      z += dz
+    }
 
     ctx.fillStyle = odd ? 'grey' : 'darkgrey'
     ctx.fillRect(center - i / 2, i, i, 1)
