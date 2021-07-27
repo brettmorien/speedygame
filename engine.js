@@ -1,31 +1,52 @@
 var canvas
 
+// http://www.extentofthejam.com/pseudo/
+
 function startGame() {
   console.log('starting game loop')
   game = new Game()
 
-  window.requestAnimationFrame(drawScene)
+  window.requestAnimationFrame(gameLoop)
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('game')
-  game.horizon = canvas.height * 0.4
+  game.horizon = canvas.height * 0.5
+  buildRoadZMap()
 })
 
-var previousTime = 1
+var previousTime = 0
 var game
 
 class Game {
   distance = 0
   horizon = 0
 
-  ddz = 4
+  cameraHeight = 50
+  roadWidth = 200
 
   player = new Player()
 }
 
 class Player {
   speed = 47
+}
+
+function gameLoop(time) {
+  resetDebug()
+
+  game.distance = (canvas.height + (time / 1000) * game.player.speed).toFixed(2)
+
+  drawScene(time)
+  window.requestAnimationFrame(gameLoop)
+}
+
+let roadZmap = []
+
+function buildRoadZMap() {
+  for (let i = 0; i < canvas.height; i++) {
+    roadZmap[i] = -game.cameraHeight / (i - game.horizon)
+  }
 }
 
 function drawScene(time) {
@@ -36,38 +57,45 @@ function drawScene(time) {
   previousTime = time
   debug(`${hz} fps`)
 
-  game.distance = (canvas.height + (time / 1000) * game.player.speed).toFixed(2)
-
   debug(`${(time / 1000).toFixed(2)}s`)
   debug(`d: ${game.distance}`)
   center = canvas.width / 2
 
+  ctx.fillStyle = 'lightgreen'
+  ctx.fillRect(0, canvas.height - game.horizon, canvas.width, game.horizon)
+
   var odd = false
-  var dz = 0
-  var z = game.horizon
-  for (let i = game.horizon; i < canvas.height; i++) {
-    if (i > z) {
+  let stripeHeight = 8
+  var nextStripe = stripeHeight - scale(game.distance % (stripeHeight * 2), 0)
+  for (let i = 0; i < game.horizon; i++) {
+    let y = canvas.height - i
+    let width = scale(game.roadWidth, i)
+
+    if (i > nextStripe) {
+      nextStripe = nextStripe + scale(stripeHeight, i)
       odd = !odd
-      dz += game.ddz
-      z += dz
     }
 
     ctx.fillStyle = odd ? 'grey' : 'darkgrey'
-    ctx.fillRect(center - i / 2, i, i, 1)
+    ctx.fillRect(center - width / 2, y, width, 1)
 
-    ctx.fillStyle = odd ? 'red' : 'white'
-    ctx.fillRect(center - i / 2 - 10, i, 10, 1)
-    ctx.fillRect(center + i / 2, i, 10, 1)
+    let borderWidth = scale(20, i)
+    let stripeWidth = scale(5, i)
 
-    if (odd) {
-      ctx.fillStyle = "#eeeeee"
-      ctx.fillRect(center - i / 4 - 10, i, 10, 1)
-      ctx.fillRect(center + i / 4, i, 10, 1)
+    ctx.fillStyle = odd ? 'white' : 'red'
+    ctx.fillRect(center - width / 2 - borderWidth, y, borderWidth, 1)
+    ctx.fillRect(center + width / 2, y, borderWidth, 1)
+
+    if (!odd) {
+      ctx.fillStyle = '#eeeeee'
+      ctx.fillRect(center - width / 5 - stripeWidth, y, stripeWidth, 1)
+      ctx.fillRect(center + width / 5, y, stripeWidth, 1)
     }
   }
+}
 
-  resetDebug()
-  window.requestAnimationFrame(drawScene)
+function scale(size, y) {
+  return size / roadZmap[y]
 }
 
 var debugLine = 0
