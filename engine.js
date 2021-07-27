@@ -30,6 +30,48 @@ class Game {
 
 class Player {
   speed = 47
+  input = new Input()
+}
+
+class Input {
+  left = false
+  up = false
+  right = false
+  down = false
+}
+
+function keyDown(event) {
+  switch (event.keyCode) {
+    case 37:
+      game.player.input.left = true
+      break;
+    case 38:
+      game.player.input.up = true
+      break;
+    case 39:
+      game.player.input.right = true
+      break;
+    case 40:
+      game.player.input.down = true
+      break;
+  }
+}
+
+function keyUp(event) {
+  switch (event.keyCode) {
+    case 37:
+      game.player.input.left = false
+      break;
+    case 38:
+      game.player.input.up = false
+      break;
+    case 39:
+      game.player.input.right = false
+      break;
+    case 40:
+      game.player.input.down = false
+      break;
+  }
 }
 
 function gameLoop(time) {
@@ -37,8 +79,17 @@ function gameLoop(time) {
 
   game.distance = (canvas.height + (time / 1000) * game.player.speed).toFixed(2)
 
+  handleInput(time)
   drawScene(time)
   window.requestAnimationFrame(gameLoop)
+}
+
+function handleInput(time) {
+  if (game.player.input.up) {
+    game.player.speed = 100
+  } else {
+    game.player.speed = 50
+  }
 }
 
 let roadZmap = []
