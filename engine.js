@@ -12,6 +12,7 @@ function startGame() {
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('game')
   game.horizon = canvas.height * 0.5
+  game.playerScale = canvas.height / 160
   game.buildRoadZMap()
   game.buildPlayerSpritesheet()
 })
@@ -31,6 +32,10 @@ class Game {
 
   roadZmap = []
   playerSprites = []
+
+  maxAcc = 20
+  maxSpeed = 200
+  turnRate = 5
 
   buildRoadZMap() {
     for (let i = 0; i < canvas.height; i++) {
@@ -60,8 +65,12 @@ class Game {
 }
 
 class Player {
-  speed = 47
+  acceleration = 0
+  speed = 0
+  turning = 0
   input = new Input()
+
+  position = 0
 }
 
 class PlayerSprite {
@@ -118,31 +127,59 @@ function keyUp(event) {
 function gameLoop(time) {
   resetDebug()
 
-  game.distance = canvas.height + (time / 1000) * game.player.speed
+  let elapsed = time - previousTime
+  previousTime = time
 
-  handleInput(time)
-  drawScene(time)
+  game.distance += elapsed * game.player.speed / 1000
+
+  handleInput()
+  updatePlayer(time, elapsed)
+  drawScene(time, elapsed)
   window.requestAnimationFrame(gameLoop)
 }
 
-function handleInput(time) {
+function handleInput() {
   if (game.player.input.up) {
-    game.player.speed = 100
-  } else {
-    game.player.speed = 50
+    game.player.acceleration = game.maxAcc
+  } else if (game.player.input.down) {
+    game.player.acceleration = - game.maxAcc * 3
+  } else if (game.player.speed != 0) {
+    game.player.acceleration = -game.maxAcc
   }
+
+  if (game.player.input.left) {
+    game.player.turning = -1
+  } else if (game.player.input.right) {
+    game.player.turning = 1
+  } else {
+    game.player.turning = 0
+  }
+
+  debug(`Acc: ${game.player.acceleration}`)
 }
 
-function drawScene(time) {
+function updatePlayer(time, elapsed) {
+  game.player.speed += game.player.acceleration * elapsed / 1000
+  game.player.speed = Math.min(game.maxSpeed, Math.max(0, game.player.speed))
+
+  game.player.position += game.player.turning * game.turnRate * game.player.speed * elapsed / 1000
+
+  if (game.player.speed <= 0) {
+    game.player.acceleration = 0
+  }
+
+  debug (`Speed: ${game.player.speed.toFixed(1)}`)
+}
+
+function drawScene(time, elapsed) {
   let ctx = canvas.getContext('2d')
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  let hz = (1000 / (time - previousTime)).toFixed(2)
-  previousTime = time
+  let hz = (1000 / (elapsed)).toFixed(2)
   debug(`${hz} fps`)
 
   debug(`${(time / 1000).toFixed(2)}s`)
-  debug(`d: ${game.distance}`)
+  debug(`d: ${game.distance.toFixed(2)}`)
   center = canvas.width / 2
 
   ctx.fillStyle = 'lightgreen'
@@ -178,29 +215,41 @@ function drawScene(time) {
     }
   }
 
-  let mult = 60
-
-  let spriteIndex = (game.distance / mult).toFixed(0) % game.playerSprites.length
-
-  debug(spriteIndex)
+  let spriteIndex = game.player.turning == 1 ? 1
+    : game.player.turning == -1 ? 7
+    : 4
+  
+  if (game.player.acceleration > 0) {
+    spriteIndex -= 1
+  } else if (game.player.acceleration < 0) {
+    spriteIndex += 1
+  }
 
   with (game.playerSprites[spriteIndex]) {
     ctx.drawImage(img, x, y, width, height,
-      (canvas.width - width * game.playerScale) / 2,
-      canvas.height - height * game.playerScale - 20,
+      (canvas.width - width * game.playerScale) / 2 + game.player.position,
+      canvas.height - height * game.playerScale,
       width * game.playerScale, height * game.playerScale
     )
   }
+
+  drawDebug()
 }
 
-var debugLine = 0
+var debugLines = []
 function resetDebug() {
-  debugLine = 0
+  debugLines = []
 }
 function debug(text) {
+  debugLines.push(text)
+}
+
+function drawDebug() {
   let ctx = canvas.getContext('2d')
   ctx.strokeStyle = 'black'
-  ctx.strokeText(text, 10, 10 * ++debugLine, 200)
+  for (let i = 0; i < debugLines.length; i++) {
+    ctx.strokeText(debugLines[i], 10, 10 * (i + 1), 200)
+  }
 }
 
 // ctx.fillRect(10, 10, 50, 50)
