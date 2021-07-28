@@ -11,9 +11,7 @@ function startGame() {
 
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('game')
-  game.horizon = canvas.height * 0.5
-  game.playerScale = canvas.height / 160
-  game.buildRoadZMap()
+  setResolution(3)
   game.buildPlayerSpritesheet()
 })
 
@@ -33,7 +31,7 @@ class Game {
   roadZmap = []
   playerSprites = []
 
-  maxAcc = 20
+  maxAcc = 40
   maxSpeed = 200
   turnRate = 5
 
@@ -121,7 +119,31 @@ function keyUp(event) {
     case 40:
       game.player.input.down = false
       break
+    case 187: // plus
+      setResolution(resolution + 1)
+      break
+    case 189: // minus
+      setResolution(resolution - 1)
+      break
   }
+}
+
+var resolution = 3
+let resolutions = [
+  { x: 160, y: 120 },
+  { x: 320, y: 240 },
+  { x: 640, y: 480 },
+  { x: 1024, y: 768 },
+  { x: 2048, y: 1280 },
+]
+
+function setResolution(res) {
+  resolution = Math.min(Math.max(res, 0), resolutions.length)
+  canvas.width = resolutions[res].x
+  canvas.height = resolutions[res].y
+  game.horizon = canvas.height * 0.5
+  game.playerScale = canvas.height / 160
+  game.buildRoadZMap()
 }
 
 function gameLoop(time) {
@@ -180,6 +202,8 @@ function drawScene(time, elapsed) {
 
   debug(`${(time / 1000).toFixed(2)}s`)
   debug(`d: ${game.distance.toFixed(2)}`)
+  debug (`Res: ${canvas.width}x${canvas.height}`)
+
   center = canvas.width / 2
 
   ctx.fillStyle = 'lightgreen'
