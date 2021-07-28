@@ -128,7 +128,7 @@ function keyUp(event) {
   }
 }
 
-var resolution = 3
+var resolution = -1
 let resolutions = [
   { x: 160, y: 120 },
   { x: 320, y: 240 },
@@ -138,12 +138,15 @@ let resolutions = [
 ]
 
 function setResolution(res) {
-  resolution = Math.min(Math.max(res, 0), resolutions.length)
-  canvas.width = resolutions[res].x
-  canvas.height = resolutions[res].y
-  game.horizon = canvas.height * 0.5
-  game.playerScale = canvas.height / 160
-  game.buildRoadZMap()
+  resolution = Math.min(Math.max(res, 0), resolutions.length - 1)
+  if (res == resolution)
+  {
+    canvas.width = resolutions[resolution].x
+    canvas.height = resolutions[resolution].y
+    game.horizon = canvas.height * 0.5
+    game.playerScale = canvas.height / 160
+    game.buildRoadZMap()
+  }
 }
 
 function gameLoop(time) {
