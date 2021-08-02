@@ -64,6 +64,11 @@ class Display {
         odd = !odd
       }
 
+      if (odd) {
+        ctx.fillStyle = '#aaffaa'
+        ctx.fillRect(0, y, canvas.width, 1)
+      }
+
       let center = horizonCenter + (carCenter * (game.horizon - y)) / game.horizon
 
       ctx.fillStyle = odd ? 'grey' : 'darkgrey'
