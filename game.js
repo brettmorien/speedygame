@@ -8,12 +8,11 @@ class Game {
 
   player = new Player()
 
-  roadZmap = []
-  playerSprites = []
-
   maxAcc = 40
   maxSpeed = 200
   turnRate = 1
+
+  turn = 0
 
   start(display) {
     this.display = display
@@ -52,31 +51,5 @@ class Game {
     }
 
     debug(`Acc: ${game.player.acceleration}`)
-  }
-
-  buildRoadZMap() {
-    for (let i = 0; i < canvas.height; i++) {
-      this.roadZmap[i] = -game.cameraHeight / (i - game.horizon)
-    }
-  }
-
-  scale(size, y) {
-    return size / this.roadZmap[y]
-  }
-
-  buildPlayerSpritesheet() {
-    let img = document.getElementById('terrarossa')
-
-    this.playerSprites = [
-      new PlayerSprite(img, 8, 10, 40, 37), // R
-      new PlayerSprite(img, 56, 10, 40, 37),
-      new PlayerSprite(img, 104, 10, 40, 37),
-      new PlayerSprite(img, 152, 10, 40, 37), // M
-      new PlayerSprite(img, 200, 10, 40, 37),
-      new PlayerSprite(img, 248, 10, 40, 37),
-      new PlayerSprite(img, 296, 10, 40, 37), // L
-      new PlayerSprite(img, 344, 10, 40, 37),
-      new PlayerSprite(img, 392, 10, 40, 37),
-    ]
   }
 }

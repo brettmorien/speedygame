@@ -1,5 +1,6 @@
 class Display {
   constructor() {}
+
   resolution = -1
   resolutions = [
     { x: 160, y: 120 },
@@ -8,7 +9,10 @@ class Display {
     { x: 1024, y: 768 },
     { x: 2048, y: 1280 },
   ]
-  scale = 1
+
+  drawScale = 1
+  roadZmap = []
+  playerSprites = []
 
   setResolution(res) {
     this.resolution = Math.min(Math.max(res, 0), this.resolutions.length - 1)
@@ -16,8 +20,8 @@ class Display {
       canvas.width = this.resolutions[this.resolution].x
       canvas.height = this.resolutions[this.resolution].y
       game.horizon = canvas.height * 0.5
-      this.scale = canvas.height / 160
-      game.buildRoadZMap()
+      this.drawScale = canvas.height / 160
+      this.buildRoadZMap()
     }
   }
 
@@ -40,29 +44,33 @@ class Display {
     debug(`d: ${game.distance.toFixed(2)}`)
     debug(`Res: ${canvas.width}x${canvas.height}`)
 
-    let center = canvas.width / 2
+    let horizonCenter = canvas.width / 2
+    let carCenter = game.player.position * this.drawScale
 
     ctx.fillStyle = 'lightgreen'
     ctx.fillRect(0, canvas.height - game.horizon, canvas.width, game.horizon)
 
     var odd = false
     let stripeHeight = 8
-    var nextStripe = stripeHeight - game.scale(game.distance % (stripeHeight * 2), 0)
+    var nextStripe = stripeHeight - this.scale(game.distance % (stripeHeight * 2), 0)
 
-    for (let i = 0; i < game.horizon; i++) {
+    // Draw from the bottom up
+    for (let i = 0; i <= game.horizon; i++) {
       let y = canvas.height - i
-      let width = game.scale(game.roadWidth, i)
+      let width = this.scale(game.roadWidth, i)
 
       if (i > nextStripe) {
-        nextStripe = nextStripe + game.scale(stripeHeight, i)
+        nextStripe = nextStripe + this.scale(stripeHeight, i)
         odd = !odd
       }
+
+      let center = horizonCenter + (carCenter * (game.horizon - y)) / game.horizon
 
       ctx.fillStyle = odd ? 'grey' : 'darkgrey'
       ctx.fillRect(center - width / 2, y, width, 1)
 
-      let borderWidth = game.scale(20, i)
-      let stripeWidth = game.scale(5, i)
+      let borderWidth = this.scale(20, i)
+      let stripeWidth = this.scale(5, i)
 
       ctx.fillStyle = odd ? 'white' : 'red'
       ctx.fillRect(center - width / 2 - borderWidth, y, borderWidth, 1)
@@ -77,27 +85,43 @@ class Display {
 
     let spriteIndex = game.player.turning == 1 ? 1 : game.player.turning == -1 ? 7 : 4
 
-    if (game.player.acceleration > 0 && game.player.speed < game.maxSpeed) {
+    if (game.player.acceleration > 0) {
       spriteIndex -= 1
     } else if (game.player.acceleration < -game.maxAcc) {
       spriteIndex += 1
     }
 
-    let s = game.playerSprites[spriteIndex]
+    let s = this.playerSprites[spriteIndex]
 
-    ctx.drawImage(
-      s.img,
-      s.x,
-      s.y,
-      s.width,
-      s.height,
-      (canvas.width - s.width * this.scale) / 2 + game.player.position * this.scale,
-      canvas.height - s.height * this.scale,
-      s.width * this.scale,
-      s.height * this.scale
-    )
+    ctx.drawImage(s.img, s.x, s.y, s.width, s.height, (canvas.width - s.width * this.drawScale) / 2, canvas.height - s.height * this.drawScale, s.width * this.drawScale, s.height * this.drawScale)
 
     this.drawDebug()
+  }
+
+  buildRoadZMap() {
+    for (let i = 0; i < canvas.height; i++) {
+      this.roadZmap[i] = -game.cameraHeight / (i - game.horizon)
+    }
+  }
+
+  scale(size, y) {
+    return size / this.roadZmap[y]
+  }
+
+  buildPlayerSpritesheet() {
+    let img = document.getElementById('terrarossa')
+
+    this.playerSprites = [
+      new PlayerSprite(img, 8, 10, 40, 37), // R
+      new PlayerSprite(img, 56, 10, 40, 37),
+      new PlayerSprite(img, 104, 10, 40, 37),
+      new PlayerSprite(img, 152, 10, 40, 37), // M
+      new PlayerSprite(img, 200, 10, 40, 37),
+      new PlayerSprite(img, 248, 10, 40, 37),
+      new PlayerSprite(img, 296, 10, 40, 37), // L
+      new PlayerSprite(img, 344, 10, 40, 37),
+      new PlayerSprite(img, 392, 10, 40, 37),
+    ]
   }
 
   drawDebug() {

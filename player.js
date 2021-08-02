@@ -1,4 +1,3 @@
-
 class Player {
   acceleration = 0
   speed = 0
@@ -8,16 +7,16 @@ class Player {
   position = 0
 
   update(time, elapsed) {
-    this.speed += this.acceleration * elapsed / 1000
+    this.speed += (this.acceleration * elapsed) / 1000
     this.speed = Math.min(game.maxSpeed, Math.max(0, this.speed))
-  
-    this.position += this.turning * game.turnRate * this.speed * elapsed / 1000
-  
-    if (this.speed <= 0) {
+
+    this.position = clamp(this.position + (this.turning * game.turnRate * this.speed * elapsed) / 1000, -game.roadWidth / 2, game.roadWidth / 2)
+
+    if (this.speed <= 0 || this.speed >= game.maxSpeed) {
       this.acceleration = 0
     }
-  
-    debug (`Speed: ${this.speed.toFixed(1)}`)
+
+    debug(`Speed: ${this.speed.toFixed(1)}`)
   }
 }
 

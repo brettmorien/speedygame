@@ -1,20 +1,22 @@
+// Inspired by http://www.extentofthejam.com/pseudo/
+
 var canvas
 var previousTime = 0
 var game
 var display
 
-// http://www.extentofthejam.com/pseudo/
 function startGame() {
   console.log('starting game')
   game = new Game()
   display = new Display()
   game.start(display)
+  canvas = document.getElementById('game')
+  display.setResolution(3)
+  display.buildPlayerSpritesheet()
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  canvas = document.getElementById('game')
-  display.setResolution(3)
-  game.buildPlayerSpritesheet()
+  startGame()
 })
 
 class Input {
@@ -37,6 +39,15 @@ function keyDown(event) {
       break
     case 40:
       game.player.input.down = true
+      break
+    case 81: // q
+      game.turn = -1
+      break
+    case 87: // w
+      game.turn = 0
+      break
+    case 69: // e
+      game.turn = 1
       break
   }
 }
