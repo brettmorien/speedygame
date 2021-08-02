@@ -8,6 +8,7 @@ class Display {
     { x: 1024, y: 768 },
     { x: 2048, y: 1280 },
   ]
+  scale = 1
 
   setResolution(res) {
     this.resolution = Math.min(Math.max(res, 0), this.resolutions.length - 1)
@@ -15,7 +16,7 @@ class Display {
       canvas.width = this.resolutions[this.resolution].x
       canvas.height = this.resolutions[this.resolution].y
       game.horizon = canvas.height * 0.5
-      game.playerScale = canvas.height / 160
+      this.scale = canvas.height / 160
       game.buildRoadZMap()
     }
   }
@@ -90,10 +91,10 @@ class Display {
       s.y,
       s.width,
       s.height,
-      (canvas.width - s.width * game.playerScale) / 2 + game.player.position * game.playerScale,
-      canvas.height - s.height * game.playerScale,
-      s.width * game.playerScale,
-      s.height * game.playerScale
+      (canvas.width - s.width * this.scale) / 2 + game.player.position * this.scale,
+      canvas.height - s.height * this.scale,
+      s.width * this.scale,
+      s.height * this.scale
     )
 
     this.drawDebug()

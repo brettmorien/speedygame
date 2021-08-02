@@ -5,7 +5,6 @@ class Game {
 
   cameraHeight = 50
   roadWidth = 200
-  playerScale = 5
 
   player = new Player()
 
