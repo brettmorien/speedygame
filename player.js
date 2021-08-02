@@ -19,7 +19,6 @@ class Player {
   
     debug (`Speed: ${this.speed.toFixed(1)}`)
   }
-  
 }
 
 class PlayerSprite {

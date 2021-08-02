@@ -14,7 +14,7 @@ class Game {
 
   maxAcc = 40
   maxSpeed = 200
-  turnRate = 5
+  turnRate = 1
 
   start(display) {
     this.display = display

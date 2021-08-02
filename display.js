@@ -90,7 +90,7 @@ class Display {
       s.y,
       s.width,
       s.height,
-      (canvas.width - s.width * game.playerScale) / 2 + game.player.position,
+      (canvas.width - s.width * game.playerScale) / 2 + game.player.position * game.playerScale,
       canvas.height - s.height * game.playerScale,
       s.width * game.playerScale,
       s.height * game.playerScale
