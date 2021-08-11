@@ -10,7 +10,7 @@ class Player {
     this.speed += (this.acceleration * elapsed) / 1000
     this.speed = Math.min(game.maxSpeed, Math.max(0, this.speed))
 
-    this.position = clamp(this.position + (this.turning * game.turnRate * this.speed * elapsed) / 1000, -game.roadWidth / 2, game.roadWidth / 2)
+    this.position = clamp(this.position + ((this.turning - game.turn) * game.turnRate * this.speed * elapsed) / 1000, -game.roadWidth / 2, game.roadWidth / 2)
 
     if (this.speed <= 0 || this.speed >= game.maxSpeed) {
       this.acceleration = 0

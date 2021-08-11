@@ -44,9 +44,6 @@ class Display {
     debug(`d: ${game.distance.toFixed(2)}`)
     debug(`Res: ${canvas.width}x${canvas.height}`)
 
-    let horizonCenter = canvas.width / 2
-    let carCenter = game.player.position * this.drawScale
-
     ctx.fillStyle = 'lightgreen'
     ctx.fillRect(0, canvas.height - game.horizon, canvas.width, game.horizon)
 
@@ -69,7 +66,7 @@ class Display {
         ctx.fillRect(0, y, canvas.width, 1)
       }
 
-      let center = horizonCenter + (carCenter * (game.horizon - y)) / game.horizon
+      let center = this.getCenter(y)
 
       ctx.fillStyle = odd ? 'grey' : 'darkgrey'
       ctx.fillRect(center - width / 2, y, width, 1)
@@ -101,6 +98,17 @@ class Display {
     ctx.drawImage(s.img, s.x, s.y, s.width, s.height, (canvas.width - s.width * this.drawScale) / 2, canvas.height - s.height * this.drawScale, s.width * this.drawScale, s.height * this.drawScale)
 
     this.drawDebug()
+  }
+
+  getCenter(y) {
+    let i = canvas.height - y
+    let horizonCenter = canvas.width / 2
+    let carCenter = game.player.position * this.drawScale
+
+    let center = horizonCenter + (i * i * game.turn / 500) + (carCenter * (game.horizon - y)) / game.horizon
+
+    // debug(`y: ${y} - c: ${center}`)
+    return center
   }
 
   buildRoadZMap() {
