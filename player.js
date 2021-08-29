@@ -10,13 +10,22 @@ class Player {
     this.speed += (this.acceleration * elapsed) / 1000
     this.speed = Math.min(game.maxSpeed, Math.max(0, this.speed))
 
-    this.position = clamp(this.position + ((this.turning - game.turn) * game.turnRate * this.speed * elapsed) / 1000, -game.roadWidth / 2, game.roadWidth / 2)
+    // playerX = playerX - (dx * speedPercent * playerSegment.curve * centrifugal);
+
+    let force = (this.speed / game.maxSpeed) * game.curve * game.centrifugal * elapsed
+    let turn = this.turning * (this.speed / game.maxSpeed) * elapsed
+
+    // let turn = ((this.turning - game.curve) * (this.speed / game.maxSpeed) * game.centrifugal * elapsed)
+
+    this.position = clamp(this.position - force + turn, -game.roadWidth / 2, game.roadWidth / 2)
 
     if (this.speed <= 0 || this.speed >= game.maxSpeed) {
       this.acceleration = 0
     }
 
     debug(`Speed: ${this.speed.toFixed(1)}`)
+    debug(`Turn: ${turn.toFixed(1)}`)
+    debug(`Position: ${this.position.toFixed(1)}`)
   }
 }
 

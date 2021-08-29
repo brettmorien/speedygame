@@ -19,7 +19,6 @@ class Display {
     if (res == this.resolution) {
       canvas.width = this.resolutions[this.resolution].x
       canvas.height = this.resolutions[this.resolution].y
-      game.horizon = canvas.height * 0.5
       this.drawScale = canvas.height / 160
       this.buildRoadZMap()
     }
@@ -34,26 +33,30 @@ class Display {
   }
 
   drawScene(time, elapsed) {
+    let screenHeight = canvas.height
+    let screenWidth = canvas.width
+    let horizon = game.horizon * screenHeight
+
     let ctx = canvas.getContext('2d')
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, screenWidth, screenHeight)
 
     let hz = (1000 / elapsed).toFixed(2)
     debug(`${hz} fps`)
 
     debug(`${(time / 1000).toFixed(2)}s`)
     debug(`d: ${game.distance.toFixed(2)}`)
-    debug(`Res: ${canvas.width}x${canvas.height}`)
+    debug(`Res: ${screenWidth}x${screenHeight}`)
 
     ctx.fillStyle = 'lightgreen'
-    ctx.fillRect(0, canvas.height - game.horizon, canvas.width, game.horizon)
+    ctx.fillRect(0, screenHeight - horizon, screenWidth, horizon)
 
     var odd = false
     let stripeHeight = 8
     var nextStripe = stripeHeight - this.scale(game.distance % (stripeHeight * 2), 0)
 
     // Draw from the bottom up
-    for (let i = 0; i <= game.horizon; i++) {
-      let y = canvas.height - i
+    for (let i = 0; i <= horizon; i++) {
+      let y = screenHeight - i
       let width = this.scale(game.roadWidth, i)
 
       if (i > nextStripe) {
@@ -63,7 +66,7 @@ class Display {
 
       if (odd) {
         ctx.fillStyle = '#aaffaa'
-        ctx.fillRect(0, y, canvas.width, 1)
+        ctx.fillRect(0, y, screenWidth, 1)
       }
 
       let center = this.getCenter(y)
@@ -95,25 +98,28 @@ class Display {
 
     let s = this.playerSprites[spriteIndex]
 
-    ctx.drawImage(s.img, s.x, s.y, s.width, s.height, (canvas.width - s.width * this.drawScale) / 2, canvas.height - s.height * this.drawScale, s.width * this.drawScale, s.height * this.drawScale)
+    ctx.drawImage(s.img, s.x, s.y, s.width, s.height, (screenWidth - s.width * this.drawScale) / 2, screenHeight - s.height * this.drawScale, s.width * this.drawScale, s.height * this.drawScale)
 
     this.drawDebug()
   }
 
   getCenter(y) {
+    let horizon = game.horizon * canvas.height
     let i = canvas.height - y
     let horizonCenter = canvas.width / 2
     let carCenter = game.player.position * this.drawScale
 
-    let center = horizonCenter + (i * i * game.turn / 500) + (carCenter * (game.horizon - y)) / game.horizon
+    let center = horizonCenter + (i * i * game.curve) / 500 + (carCenter * (horizon - y)) / horizon
 
     // debug(`y: ${y} - c: ${center}`)
     return center
   }
 
   buildRoadZMap() {
-    for (let i = 0; i < canvas.height; i++) {
-      this.roadZmap[i] = -game.cameraHeight / (i - game.horizon)
+    let screenHeight = canvas.height
+    let horizon = game.horizon * screenHeight
+    for (let i = 0; i < screenHeight; i++) {
+      this.roadZmap[i] = -game.cameraHeight / (i - horizon)
     }
   }
 

@@ -41,13 +41,13 @@ function keyDown(event) {
       game.player.input.down = true
       break
     case 81: // q
-      game.turn -= .5
+      game.curve -= .5
       break
     case 87: // w
-      game.turn = 0
+      game.curve = 0
       break
     case 69: // e
-      game.turn += .5
+      game.curve += .5
       break
   }
 }

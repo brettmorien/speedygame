@@ -1,7 +1,7 @@
 class Game {
   display = null
   distance = 0
-  horizon = 0
+  horizon = 0.5
 
   cameraHeight = 50
   roadWidth = 200
@@ -10,9 +10,9 @@ class Game {
 
   maxAcc = 40
   maxSpeed = 200
-  turnRate = 1
 
-  turn = 0
+  centrifugal = 0.3
+  curve = 0
 
   start(display) {
     this.display = display
