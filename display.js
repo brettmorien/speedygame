@@ -11,7 +11,7 @@ class Display {
   ]
 
   drawScale = 1
-  roadZmap = []
+  zmap = []
   playerSprites = []
 
   setResolution(res) {
@@ -20,7 +20,7 @@ class Display {
       canvas.width = this.resolutions[this.resolution].x
       canvas.height = this.resolutions[this.resolution].y
       this.drawScale = canvas.height / 160
-      this.buildRoadZMap()
+      this.buildZmap()
     }
   }
 
@@ -115,16 +115,16 @@ class Display {
     return center
   }
 
-  buildRoadZMap() {
+  buildZmap() {
     let screenHeight = canvas.height
     let horizon = game.horizon * screenHeight
     for (let i = 0; i < screenHeight; i++) {
-      this.roadZmap[i] = -game.cameraHeight / (i - horizon)
+      this.zmap[i] = -game.cameraHeight / (i - horizon)
     }
   }
 
   scale(size, y) {
-    return size / this.roadZmap[y]
+    return size / this.zmap[y]
   }
 
   buildPlayerSpritesheet() {
