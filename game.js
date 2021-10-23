@@ -42,9 +42,9 @@ class Game {
       game.player.acceleration = -game.maxAcc
     }
 
-    if (game.player.input.left) {
+    if (game.player.input.left && game.player.speed > 0) {
       game.player.turning = -1
-    } else if (game.player.input.right) {
+    } else if (game.player.input.right && game.player.speed > 0) {
       game.player.turning = 1
     } else {
       game.player.turning = 0

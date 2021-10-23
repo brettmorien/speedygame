@@ -17,7 +17,7 @@ class Player {
 
     // let turn = ((this.turning - game.curve) * (this.speed / game.maxSpeed) * game.centrifugal * elapsed)
 
-    this.position = clamp(this.position - force + turn, -game.roadWidth / 2, game.roadWidth / 2)
+    this.position = clamp(this.position - force + turn, -game.roadWidth, game.roadWidth)
 
     if (this.speed <= 0 || this.speed >= game.maxSpeed) {
       this.acceleration = 0
